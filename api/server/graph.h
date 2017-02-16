@@ -49,6 +49,10 @@ class Graph {
      * @param  nic model and informations of the NIC.
      */
     std::string nic_add(const app::Nic &nic);
+    /** check if NIC exit in the graph.
+     * @param  id NIC id to check.
+     */
+    bool isNicExists(const app::Nic &nic);
     /** Remove a NIC from the graph with related dependencies.
      * @param  id NIC id to delete.
      */

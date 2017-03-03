@@ -94,10 +94,10 @@ APIServer::process(const zmqpp::message &req, zmqpp::message *res) {
     // Process request
     std::string response_string;
     try {
-        API::process_request(request_string, &response_string);
+        API::processRequest(request_string, &response_string);
     } catch (std::exception &e) {
         LOG_ERROR_("internal error: %s", e.what());
-        API::build_internal_error(&response_string);
+        API::buildInternalError(&response_string);
     }
 
     // Pack message in ZMQ

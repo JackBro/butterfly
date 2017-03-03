@@ -99,7 +99,7 @@ void Graph::stop() {
     for (n_it = app::model.nics.begin();
          n_it != app::model.nics.end();
          n_it++) {
-        nic_del(n_it->second);
+        nicDel(n_it->second);
     }
 
     // Stop vhost
@@ -120,7 +120,7 @@ void Graph::stop() {
     // Byby packetgraph
     vnis_.clear();
     pg_stop();
-    app::destroy_cgroup();
+    app::destroyCgroup();
     started = false;
 }
 
@@ -166,7 +166,7 @@ bool Graph::start(std::string dpdk_args) {
     } else {
         app::log.debug("using dpdk port " +
                        std::to_string(app::config.dpdk_port));
-        set_config_mtu();
+        setConfigMtu();
         pg_nic_get_mac(nic_.get(), &mac);
     }
     pg_nic_capabilities(nic_.get(), &useless, &nic_capa_tx);
@@ -214,7 +214,7 @@ bool Graph::start(std::string dpdk_args) {
     return true;
 }
 
-void Graph::set_config_mtu() {
+void Graph::setConfigMtu() {
     if (app::config.nic_mtu.length() == 0) {
         goto exit;
     }
@@ -280,15 +280,15 @@ void *Graph::poller(void *graph) {
     g_async_queue_ref(g->queue_);
 
     // Set CPU affinity for packetgraph processing
-    Graph::set_cpu(app::config.graph_core_id);
-    Graph::set_sched();
+    Graph::setCpu(app::config.graph_core_id);
+    Graph::setSched();
 
     /* The main packet poll loop. */
     for (uint32_t cnt = 0;; ++cnt) {
         /* Let's see if there is any update every 100 000 pools. */
 
         if (POLLER_CHECK(cnt)) {
-            if (g->poller_update(&q)) {
+            if (g->pollerUpdate(&q)) {
                 if (q) {
                 list = &q->update_poll;
                 size = list->size;
@@ -327,7 +327,7 @@ void *Graph::poller(void *graph) {
 #undef POLLER_CHECK
 #undef FIREWALL_GC
 
-int Graph::set_cpu(int core_id) {
+int Graph::setCpu(int core_id) {
     cpu_set_t cpu_set;
     pthread_t t;
 
@@ -344,13 +344,13 @@ int Graph::set_cpu(int core_id) {
 
 #define gettid() syscall(SYS_gettid)
 
-int Graph::set_sched() {
+int Graph::setSched() {
   app::config.tid = gettid();
   return 0;
 }
 #undef gettid
 
-bool Graph::poller_update(struct RpcQueue **list) {
+bool Graph::pollerUpdate(struct RpcQueue **list) {
     struct RpcQueue *a;
     struct RpcQueue *tmp;
 
@@ -435,7 +435,7 @@ bool Graph::poller_update(struct RpcQueue **list) {
     return true;
 }
 
-std::string Graph::nic_add(const app::Nic &nic) {
+std::string Graph::nicAdd(const app::Nic &nic) {
     std::string name;
 
     if (!started) {
@@ -465,7 +465,7 @@ std::string Graph::nic_add(const app::Nic &nic) {
     gn.id = nic.id;
     name = "firewall-" + gn.id;
     fw_new(name.c_str(), 1, 1, PG_NO_CONN_WORKER, &tmp_fw);
-    wait_empty_queue();
+    waitEmptyQueue();
     if (tmp_fw == NULL) {
         LOG_ERROR_("Firewall creation failed");
         return "";
@@ -584,7 +584,7 @@ std::string Graph::nic_add(const app::Nic &nic) {
 
     // Reload the firewall configuration
     fw_update(nic);
-    app::set_cgroup();
+    app::setCgroup();
 
     const char *ret = pg_vhost_socket_path(gn.vhost.get(), &app::pg_error);
     if (!ret) {
@@ -593,7 +593,7 @@ std::string Graph::nic_add(const app::Nic &nic) {
     return std::string(ret);
 }
 
-void Graph::nic_del(const app::Nic &nic) {
+void Graph::nicDel(const app::Nic &nic) {
     if (!isNicExists(nic)) {
         return;
     }
@@ -624,7 +624,7 @@ void Graph::nic_del(const app::Nic &nic) {
         unlink(vni.sw);
         link(app::graph.vtep_, other.head);
         add_vni(vtep_, other.head, nic.vni);
-        wait_empty_queue();
+        waitEmptyQueue();
         vni.sw.reset();
     } else {
         // We just have to unlink branch head from the switch
@@ -635,7 +635,7 @@ void Graph::nic_del(const app::Nic &nic) {
     brick_destroy(n.firewall);
 
     // Wait that queue is done before removing bricks
-    wait_empty_queue();
+    waitEmptyQueue();
     vni.nics.erase(nic_it);
 
     // Remove empty vni
@@ -644,7 +644,7 @@ void Graph::nic_del(const app::Nic &nic) {
     }
 }
 
-std::string Graph::nic_export(const app::Nic &nic) {
+std::string Graph::nicExport(const app::Nic &nic) {
     if (!started) {
         LOG_ERROR_("Graph has not been started");
         return "";
@@ -655,7 +655,7 @@ std::string Graph::nic_export(const app::Nic &nic) {
     return data;
 }
 
-void Graph::nic_get_stats(const app::Nic &nic, uint64_t *in, uint64_t *out) {
+void Graph::nicGetStats(const app::Nic &nic, uint64_t *in, uint64_t *out) {
     if (!isNicExists(nic)) {
         return;
     }
@@ -667,7 +667,7 @@ void Graph::nic_get_stats(const app::Nic &nic, uint64_t *in, uint64_t *out) {
     *out = pg_brick_tx_bytes(nic_it->second.vhost.get());
 }
 
-void Graph::nic_config_anti_spoof(const app::Nic &nic, bool enable) {
+void Graph::nicConfigAntiSpoof(const app::Nic &nic, bool enable) {
     if (!isNicExists(nic)) {
         return;
     }
@@ -692,7 +692,7 @@ void Graph::nic_config_anti_spoof(const app::Nic &nic, bool enable) {
     }
 }
 
-std::string Graph::fw_build_rule(const app::Rule &rule) {
+std::string Graph::fwBuildRule(const app::Rule &rule) {
     // Note that we only take into account inbound rules
     if (rule.direction == app::Rule::OUTBOUND) {
         return "";
@@ -777,10 +777,10 @@ std::string Graph::fw_build_rule(const app::Rule &rule) {
     return r;
 }
 
-std::string Graph::fw_build_sg(const app::Sg &sg) {
+std::string Graph::fwBuildSg(const app::Sg &sg) {
     std::string r;
     for (auto it = sg.rules.begin(); it != sg.rules.end();) {
-        std::string fw_rule = fw_build_rule(it->second);
+        std::string fw_rule = fwBuildRule(it->second);
         if (fw_rule.length() == 0) {
             it++;
             continue;
@@ -830,12 +830,12 @@ void Graph::fw_update(const app::Nic &nic) {
             it++;
             continue;
         }
-        std::string sg_rules = fw_build_sg(sit->second);
+        std::string sg_rules = fwBuildSg(sit->second);
         if (sg_rules.length() == 0) {
             it++;
             continue;
         }
-        in_rules += "(" + fw_build_sg(sit->second) + ")";
+        in_rules += "(" + fwBuildSg(sit->second) + ")";
         if (++it != nic.security_groups.end()) {
             in_rules += "||";
         }
@@ -892,7 +892,7 @@ void Graph::fw_update(const app::Nic &nic) {
     fw_reload(fw);
 }
 
-void Graph::fw_add_rule(const app::Nic &nic, const app::Rule &rule) {
+void Graph::fwAddRule(const app::Nic &nic, const app::Rule &rule) {
     std::string m;
     if (!started) {
         LOG_ERROR_("Graph has not been started");
@@ -905,7 +905,7 @@ void Graph::fw_add_rule(const app::Nic &nic, const app::Rule &rule) {
         return;
     }
 
-    std::string r = fw_build_rule(rule);
+    std::string r = fwBuildRule(rule);
     if (r.length() == 0) {
         m = "cannot build rule (add) for nic " + nic.id;
         app::log.error(m);
@@ -965,7 +965,7 @@ bool Graph::isNicExists(const app::Nic &nic) {
 
 std::string Graph::dot() {
     // Build the graph from the physical NIC
-    return app::graph_dot(nic_.get());
+    return app::graphDot(nic_.get());
 }
 
 void Graph::exit() {
@@ -1078,7 +1078,7 @@ void Graph::update_poll() {
     g_async_queue_push(queue_, a);
 }
 
-void Graph::wait_empty_queue() {
+void Graph::waitEmptyQueue() {
     while (g_async_queue_length_unlocked(queue_) > 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }

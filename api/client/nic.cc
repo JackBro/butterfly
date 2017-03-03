@@ -183,7 +183,7 @@ static int sg_list(string nic, vector<string> *list,
     return 0;
 }
 
-int sg_update(string nic, const vector<string> &list,
+int sgUpdate(string nic, const vector<string> &list,
               const GlobalOptions &options) {
     string req =
         "messages {"
@@ -280,7 +280,7 @@ static int sub_nic_sg_add(int argc, char **argv,
         return 0;
     }
 
-    return sg_update(nic, all_sg, options);
+    return sgUpdate(nic, all_sg, options);
 }
 
 static void sub_nic_sg_del_help(void) {
@@ -331,7 +331,7 @@ static int sub_nic_sg_del(int argc, char **argv,
     if (new_sg.size() == all_sg.size()) {
         return 0;
     }
-    return sg_update(nic, new_sg, options);
+    return sgUpdate(nic, new_sg, options);
 }
 
 static void sub_nic_sg_help(void) {

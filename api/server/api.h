@@ -34,12 +34,12 @@ class API {
      * @param  response response in which the function will write the response
                         to send to the client
      */
-    static void process_request(const std::string &request,
+    static void processRequest(const std::string &request,
         std::string *response);
     /* Build a standard internal error.
      * @param  response response containing internal error
      */
-    static void build_internal_error(std::string *response);
+    static void buildInternalError(std::string *response);
     // This structure centralize description of NicUpdate informations
     struct NicUpdate {
         std::string id;
@@ -65,7 +65,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if NIC has been created, false otherwise
      */
-    static bool action_nic_add(const app::Nic &nic, std::string *path,
+    static bool actionNicAdd(const app::Nic &nic, std::string *path,
         app::Error *error);
     /* Update a NIC by replacing provided NIC parameters
      * This method centralize NIC update for all API versions
@@ -74,7 +74,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if NIC has been updated, false otherwise
      */
-    static bool action_nic_update(const NicUpdate &update,
+    static bool actionNicUpdate(const NicUpdate &update,
         app::Error *error);
     /* Delete a NIC and remove it from model
      * This method centralize NIC deletion for all API versions
@@ -83,7 +83,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if NIC has been created, false otherwise
      */
-    static bool action_nic_del(std::string id, app::Error *error);
+    static bool actionNicDel(std::string id, app::Error *error);
     /* Grab data from a NIC for NIC export
      * This method centralize NIC export for all API versions
      * @param  id NIC id to get data from
@@ -92,7 +92,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if data has been well filled
      */
-    static bool action_nic_export(std::string id, std::string *data,
+    static bool actionNicExport(std::string id, std::string *data,
         app::Error *error);
     /* Grab NIC statistics
      * This method centralize NIC statistic collection for all API versions
@@ -103,7 +103,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if data has been well filled
      */
-    static bool action_nic_stats(std::string id, uint64_t *in, uint64_t *out,
+    static bool actionNicStats(std::string id, uint64_t *in, uint64_t *out,
         app::Error *error);
     /* Creation a Security Group and add it to the model
      * This method centralize SG creation or replace for all API versions
@@ -112,7 +112,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if SG has been created or replaced, false otherwise
      */
-    static bool action_sg_add(const app::Sg &sg, app::Error *error);
+    static bool actionSgAdd(const app::Sg &sg, app::Error *error);
     /* Delete a security group and remove it from model
      * This method centralize SG deletion for all API versions
      * @param  id security group id to delete
@@ -120,7 +120,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if SG has been delete, false otherwise
      */
-    static bool action_sg_del(std::string id, app::Error *error);
+    static bool actionSgDel(std::string id, app::Error *error);
     /* Add a rule to a Security Group and add it in the model
      * This method centralize app::Rule creation for all API versions
      * @param  sg_id security group id in which we add a rule
@@ -130,7 +130,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if rule has been added, false otherwise
      */
-    static bool action_sg_rule_add(std::string sg_id, const app::Rule &rule,
+    static bool actionSgRuleAdd(std::string sg_id, const app::Rule &rule,
         app::Error *error);
     /* Delete a rule from a Security Group and update the model
      * This method centralize app::Rule deletion for all API versions
@@ -141,7 +141,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if rule has been deleted, false otherwise
      */
-    static bool action_sg_rule_del(std::string sg_id, const app::Rule &rule,
+    static bool actionSgRuleDel(std::string sg_id, const app::Rule &rule,
         app::Error *error);
     /* Add a member to a Security Group and add it in the model
      * This method centralize Member creation for all API versions
@@ -152,7 +152,7 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if member has been added, false otherwise
      */
-    static bool action_sg_member_add(std::string sg_id, const app::Ip &ip,
+    static bool actionSgMemberAdd(std::string sg_id, const app::Ip &ip,
         app::Error *error);
     /* Delete a member from a Security Group and update the model
      * This method centralize Member deletion for all API versions
@@ -163,38 +163,38 @@ class API {
      *               can be NULL to ommit it.
      * @return  true if member has been deleted, false otherwise
      */
-    static bool action_sg_member_del(std::string sg_id, const app::Ip &ip,
+    static bool actionSgMemberDel(std::string sg_id, const app::Ip &ip,
         app::Error *error);
     /* Build a dot graph representing all connected bricks
      * This method centralize dot representation building
      * @return  string representing the graphic in DOT language
      */
-    static std::string action_graph_dot();
+    static std::string actionGraphDot();
     /* Shutdown the program
      * This method centralize program shutdown for all API versions
      */
-    static void action_app_quit();
+    static void actionAppQuit();
 
  private:
     /* Find all NICs who are concerned by a specific SG and update the
      * corresponding firewall.
      * @param  sg security group to update in graph
      */
-    static void sg_update(const app::Sg &sg);
+    static void sgUpdate(const app::Sg &sg);
     /* Find all NICs who are concerned by a specific SG and only add a
      * single rule in the corresponding firewall.
      * @param  sg security group to update in graph
      * @param  rule rule to add in security group
      */
-    static void sg_update(const app::Sg &sg, const app::Rule &rule);
+    static void sgUpdate(const app::Sg &sg, const app::Rule &rule);
     /* When a security group change it's members, it may impact other
      * security groups containing a rule allowing members of the modified
-     * security group. This function perform call sg_update, looks for
+     * security group. This function perform call sgUpdate, looks for
      * security groups which has been impacted by the modified security
      * group and update corresponding NICs.
      * @param  sg modified security group
      */
-    static void sg_update_rule_members(const app::Sg &sg);
+    static void sgUpdateRuleMembers(const app::Sg &sg);
 };
 
 class API_0: public API {
@@ -204,58 +204,58 @@ class API_0: public API {
 
  private:
     /* Methods below construct message from request to response */
-    static void nic_add(const MessageV0_Request &req, MessageV0_Response *res);
-    static void nic_update(const MessageV0_Request &req,
+    static void nicAdd(const MessageV0_Request &req, MessageV0_Response *res);
+    static void nicUpdate(const MessageV0_Request &req,
                            MessageV0_Response *res);
-    static void nic_del(const MessageV0_Request &req, MessageV0_Response *res);
-    static void nic_list(const MessageV0_Request &req,
+    static void nicDel(const MessageV0_Request &req, MessageV0_Response *res);
+    static void nicList(const MessageV0_Request &req,
                          MessageV0_Response *res);
-    static void nic_details(const MessageV0_Request &req,
+    static void nicDetails(const MessageV0_Request &req,
                             MessageV0_Response *res);
-    static void nic_export(const MessageV0_Request &req,
+    static void nicExport(const MessageV0_Request &req,
                            MessageV0_Response *res);
-    static void nic_stats(const MessageV0_Request &req,
+    static void nicStats(const MessageV0_Request &req,
                           MessageV0_Response *res);
-    static void sg_add(const MessageV0_Request &req, MessageV0_Response *res);
-    static void sg_del(const MessageV0_Request &req, MessageV0_Response *res);
-    static void sg_list(const MessageV0_Request &req, MessageV0_Response *res);
-    static void sg_rule_add(const MessageV0_Request &req,
+    static void sgAdd(const MessageV0_Request &req, MessageV0_Response *res);
+    static void sgDel(const MessageV0_Request &req, MessageV0_Response *res);
+    static void sgList(const MessageV0_Request &req, MessageV0_Response *res);
+    static void sgRuleAdd(const MessageV0_Request &req,
                             MessageV0_Response *res);
-    static void sg_rule_del(const MessageV0_Request &req,
+    static void sgRuleDel(const MessageV0_Request &req,
                             MessageV0_Response *res);
-    static void sg_rule_list(const MessageV0_Request &req,
+    static void sgRuleList(const MessageV0_Request &req,
                              MessageV0_Response *res);
-    static void sg_member_add(const MessageV0_Request &req,
+    static void sgMemberAdd(const MessageV0_Request &req,
                               MessageV0_Response *res);
-    static void sg_member_del(const MessageV0_Request &req,
+    static void sgMemberDel(const MessageV0_Request &req,
                               MessageV0_Response *res);
-    static void sg_member_list(const MessageV0_Request &req,
+    static void sgMemberList(const MessageV0_Request &req,
                                MessageV0_Response *res);
-    static void app_status(const MessageV0_Request &req,
+    static void appStatus(const MessageV0_Request &req,
                            MessageV0_Response *res);
-    static void app_quit(const MessageV0_Request &req,
+    static void appQuit(const MessageV0_Request &req,
                          MessageV0_Response *res);
-    static void app_config(const MessageV0_Request &req,
+    static void appConfig(const MessageV0_Request &req,
                            MessageV0_Response *res);
     /* Methods below pre-format some standard response */
-    inline static void build_ok_res(MessageV0_Response *res);
-    inline static void build_nok_res(MessageV0_Response *res);
-    inline static void build_nok_res(MessageV0_Response *res,
+    inline static void buildOkRes(MessageV0_Response *res);
+    inline static void buildNokRes(MessageV0_Response *res);
+    inline static void buildNokRes(MessageV0_Response *res,
                                      std::string description);
-    inline static void build_nok_res(MessageV0_Response *res,
+    inline static void buildNokRes(MessageV0_Response *res,
                                      const char *description);
-    inline static void build_nok_res(MessageV0_Response *res,
+    inline static void buildNokRes(MessageV0_Response *res,
                                      const app::Error &error);
     /* Methods below permits to validate that the content of a Message is
      * is well formated as expected.
      */
-    static bool validate_nic(const MessageV0_Nic &nic);
-    static bool validate_nic_update(const MessageV0_NicUpdateReq &nic_update);
-    static bool validate_sg(const MessageV0_Sg &sg);
-    static bool validate_sg_rule(const MessageV0_Rule &rule);
-    static bool validate_ip(const std::string &ip);
-    static bool validate_mac(const std::string &mac);
-    static bool validate_cidr(const MessageV0_Cidr &cidr);
+    static bool validateNic(const MessageV0_Nic &nic);
+    static bool validateNicUpdate(const MessageV0_NicUpdateReq &nic_update);
+    static bool validateSg(const MessageV0_Sg &sg);
+    static bool validateSgRule(const MessageV0_Rule &rule);
+    static bool validateIp(const std::string &ip);
+    static bool validateMac(const std::string &mac);
+    static bool validateCidr(const MessageV0_Cidr &cidr);
     /* Methods to convert from this message version to object model
      * and reciprocally.
      */
